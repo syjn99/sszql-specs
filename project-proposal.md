@@ -34,7 +34,9 @@ Looking ahead, the importance of SSZ as a core building block of Ethereum protoc
 
 > What is your proposed solution?
 
-We propose **a new [Beacon API](https://github.com/ethereum/beacon-APIs) endpoint** that introduces an **SSZ Query Language (SSZ-QL)**, including the ability to generate **merkle proofs** for the queried data.
+We propose **a new [Beacon API](https://github.com/ethereum/beacon-APIs) endpoint** that introduces an **SSZ Query Language (SSZ-QL)**, including the ability to generate **merkle proofs** for the queried data. This endpoint will offer a minimum feature set, but it will be sufficient for most use cases. (You can check out the API specification [here](https://hackmd.io/@junsong/rkAN9lIIxx).)
+
+For a broader perspective, we're also aiming to develop a **full-featured SSZ-QL specification** that includes capabilities like filtering, range queries, and custom anchors, complete with Merkle proofs. This specification is intended for potential inclusion in the [`consensus-specs`](https://github.com/ethereum/consensus-specs/tree/dev/ssz). You can review the current draft [here](https://hackmd.io/@fernantho/rkjsksrIxg).
 
 
 ## Specification
@@ -46,6 +48,9 @@ A new endpoint( `/prysm/v1/beacon/states/{state_id}/query`) will be introduced w
 ### `POST` request
     
 Handles multiple queries with proof of inclusion. Response contains `proofs` field which is sorted **descending order** by the generalized index. You might check the [specification document](https://hackmd.io/@junsong/rkAN9lIIxx) for details.
+
+> [!Warning]
+> Examples below are tentative. For the latest version, refer to the [specification documents](##Resources).
     
 
 Example of the request body:
@@ -193,14 +198,13 @@ As this project consists of two subprojects, we need to dedicate a week to integ
 - Make useful documents about SSZ and its merklelization.
 - Prepare for the talk at DevConnect.
     
-
     
 ## Possible challenges
 
 > What are the limitations and issues you may need to overcome?
 
 - The implementation must not overfit to `BeaconState`. The code must be generic enough to work with any other arbitrary SSZ object.
-- Investigate DoS vector for adding a new endpoint.
+- Investigate DoS vector for adding a new endpoint. Based on the performance impact analysis, we might recommend adding an option to enable or disable the query feature.
 - Manage properly the concurrency and prevent these queries to halt the normal functioning of Prysm client.
 
 
@@ -223,8 +227,8 @@ As this project consists of two subprojects, we need to dedicate a week to integ
 
 ### Fellows
 
-- [Jun](https://github.com/syjn99)
-- [Nando](https://github.com/fernantho)
+- [Jun](https://github.com/syjn99) will mainly focus on **implementing the Beacon API** to expose SSZ-QL as a real-world feature.
+- [Nando](https://github.com/fernantho) will focus on establishing a clear approach for **generating Merkle (multi)proofs**.
 
 ### Mentors
 
@@ -236,6 +240,9 @@ As this project consists of two subprojects, we need to dedicate a week to integ
 - Meta Issues
     - [SSZ Query Language #15343](https://github.com/OffchainLabs/prysm/issues/15343)
     - [Merkle proofs of everything #15344](https://github.com/OffchainLabs/prysm/issues/15344)
+- Specification documents
+    - [`postSszQuery` API specification](https://hackmd.io/@junsong/rkAN9lIIxx)
+    - [SSZ-QL Specification](https://hackmd.io/@fernantho/rkjsksrIxg)
 - Demonstration in Jupyter Notebook
     - [fernantho/SSZ-QL-and-GMP](https://github.com/fernantho/SSZ-QL-and-GMP)
 - Initial project proposals
