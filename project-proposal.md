@@ -51,10 +51,7 @@ Handles multiple queries with proof of inclusion. Response contains `proofs` fie
 
 > [!Warning]
 > Examples below are tentative. For the latest version, refer to the [specification documents](##Resources).
-    
-
-Example of the request body:
-    
+        
 ```json
 {
     "query": [
@@ -69,72 +66,71 @@ Example of the request body:
     "multiproof": false
 }
 ```
+*Code 1: Example request body*
 
-
-Example response:
+When `"multiproof": false` the server returns separate proof objects—one per requested field. 
 
 ```json
 {
-    "version": "electra",
-    "execution_optimistic": false,
-    "finalized": true,
-    "data": {
-        "result": [
-            {
-                "path": ".validators[100].withdrawal_credentials",
-                "value": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
-                "proof": [
-                    "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-                ]
-            },
-            {
-                "path": ".len(validators)",
-                "value": 1000,
-                "proof": [
-                    "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-                ]
-            }
+  "version": "electra",
+  "execution_optimistic": false,
+  "finalized": true,
+  "data": {
+    "result": [
+      {
+        "paths": [".validators[100].withdrawal_credentials"],
+        "leaves": [
+          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
         ],
-        "root": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-    }
+        "gindexes": ["1319413953332001"],
+        "proof": [
+          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
+        ]
+      },
+      {
+        "paths": [".len(validators)"],
+        "leaves": ["1000"],
+        "gindexes": ["76"],
+        "proof": [
+          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
+        ]
+      }
+    ],
+    "root": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
+  }
 }
 ```
-    
-For `multiproof == true` case, `data` will contain an additional information: a collection of all necessary hash values for verification. 
+*Code 2: Example response for a non-multiproof request*
 
-Example response:
+    
+When `"multiproof": true`, it returns a single combined multiproof containing the shared helper hashes.
 
 ```json
 {
   "version": "electra",
   "execution_optimistic": true,
   "finalized": true,
-  "data": [
-    {
-      "proof_type": "merkle_multiproof",
-      "paths": [
-        ".genesis_validators_root",
-        ".fork.current_version"
-      ],
-      "leaves": [
-        "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
-        "0x0500000000000000000000000000000000000000000000000000000000000000"
-      ],
-      "gindices": [
-        65,
-        269
-      ],
-      "proofs": [
-        [
-          64,
+  "data": {
+    "result": [
+      {
+        "paths": [".genesis_validators_root", ".fork.current_version"],
+        "leaves": [
+          "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
+          "0x0500000000000000000000000000000000000000000000000000000000000000"
+        ],
+        "gindices": [65, 269],
+        "proofs": [
           "0x5730c65f00000000000000000000000000000000000000000000000000000000"
-        ] // and so on.
-      ],
-      "state_root": "0x2d178ffec45f6576ab4b61446f206c206c837fa3f324ac4d93a3eece8aad6d66"
-    }
-  ]
+        ]
+      }
+    ],
+    "root": "0x2d178ffec45f6576ab4b61446f206c206c837fa3f324ac4d93a3eece8aad6d66"
+  }
 }
+
 ```
+*Code 3: Example response for a multiproof request*
+
 
 ---
     
