@@ -86,20 +86,9 @@ See [Example sections](#Example) for example responses.
 
 The content for success query follows typical Beacon API format: it includes `version`, `execution_optimistic`, `finalized`, and `data`. 
 
-For non-multiproof mode, `data` contains an array with [](#QueryResultItem) and the state root (`root`).
+For non-multiproof mode and multiproof mode, `data` contains an array with [`QueryResult`](#QueryResult) and the state root (`root`). In case multiproof is disabled, this `data` array one element per query element. In case multiproof is enabled, the `data` array contains only one element.
 
-For multiproof mode, `data` is an array with [`QueryResultWithMultiProofItem`](#QueryResultWithMultiProofItem).
-
-##### `QueryResultItem`
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `path` | String | A merkle path to the item. |
-| `value` | Any | Result of the query. |
-| `proof` | Array\<String\> | An array of proof that are sorted **descending order** by the generalized index. Empty array if `include_proof` is `false`. |
-
-
-##### `QueryResultWithMultiProofItem`
+##### `QueryResult`
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -107,7 +96,7 @@ For multiproof mode, `data` is an array with [`QueryResultWithMultiProofItem`](#
 | `paths` | Array\<String\> | An array of Merkle paths for the queried items. Each path corresponds to the value at the respective index in the `leaves` array. |
 | `leaves` | Array\<String\> | An array of the actual values (leaves) corresponding to the queried paths. Each value is typically represented as a 32-byte hash. |
 | `gindices` | Array\<Number\> | An array of generalized indices for each value in the `leaves` array. |
-| `proofs` | Array\<Array\<Any\>\> | An array of proof nodes used in the Merkle multiproof. Each inner array is structured as `[generalized_index, hash_value]`. |
+| `proof` | Array\<String\> | An array of proof that are sorted **descending order** by the generalized index. Empty array if `include_proof` is `false`. |
 | `state_root` | String | The root of target (anchor) `BeaconState`. |
 
 
@@ -136,29 +125,34 @@ Response:
 
 ```json
 {
-    "version": "electra",
-    "execution_optimistic": false,
-    "finalized": true,
-    "data": {
-        "result": [
-            {
-                "path": ".validators[100].withdrawal_credentials",
-                "value": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
-                "proof": [
-                    "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-                ]
-            },
-            {
-                "path": ".len(validators)",
-                "value": 1000,
-                "proof": [
-                    "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-                ]
-            }
+  "version": "electra",
+  "execution_optimistic": false,
+  "finalized": true,
+  "data": {
+    "result": [
+      {
+        "paths": [".validators[100].withdrawal_credentials"],
+        "leaves": [
+          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
         ],
-        "root": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-    }
+        "gindexes": ["1319413953332001"],
+        "proof": [
+          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
+        ]
+      },
+      {
+        "paths": [".len(validators)"],
+        "leaves": ["1000"],
+        "gindexes": ["76"],
+        "proof": [
+          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
+        ]
+      }
+    ],
+    "root": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
+  }
 }
+
 ```
 
 ### 2. With Multiproof
@@ -187,65 +181,30 @@ Response:
   "version": "electra",
   "execution_optimistic": true,
   "finalized": true,
-  "data": [
-    {
-      "proof_type": "merkle_multiproof",
-      "paths": [
-        ".genesis_validators_root",
-        ".fork.current_version"
-      ],
-      "leaves": [
-        "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
-        "0x0500000000000000000000000000000000000000000000000000000000000000"
-      ],
-      "gindices": [
-        65,
-        269
-      ],
-      "proofs": [
-        [
-          64,
-          "0x5730c65f00000000000000000000000000000000000000000000000000000000"
+  "data": {
+    "result": [
+      {
+        "paths": [".genesis_validators_root", ".fork.current_version"],
+        "leaves": [
+          "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
+          "0x0500000000000000000000000000000000000000000000000000000000000000"
         ],
-        [
-          33,
-          "0xbe3dc5b7843f6b253970803030a18501814c97ac893ec03560ce4962688f857c"
-        ],
-        [
-          17,
-          "0x8d637afd2d258e4d079ca7f00dd4c857a61431af7262ede447b712a25d71e4bb"
-        ],
-        [
-          9,
-          "0x09ef197f8757969dce6a9379281f5c5b1ab7aeba924631d6ac5e560e817733c0"
-        ],
-        [
-          5,
-          "0x323688e7370b5f72bdadc1cdd2f2f4d9cd7065647a6f54a961def1222684e6d6"
-        ],
-        [
-          3,
-          "0xb7edabb0a1e1cb42fe1138558ca73510c890ba5dfc013aca0e2bf9a7c26af0a7"
-        ],
-        [
-          268,
-          "0x0400000000000000000000000000000000000000000000000000000000000000"
-        ],
-        [
-          135,
-          "0x8e38229b2010e3cde27597c6e4852c4e6cdca82e03574383993cd60250e9ed3a"
-        ],
-        [
-          66,
-          "0xe05db90000000000000000000000000000000000000000000000000000000000"
-        ],
-        [
-          32,
+        "gindices": [65, 269],
+        "proofs": [
+          "0x5730c65f00000000000000000000000000000000000000000000000000000000",
+          "0xbe3dc5b7843f6b253970803030a18501814c97ac893ec03560ce4962688f857c",
+          "0x8d637afd2d258e4d079ca7f00dd4c857a61431af7262ede447b712a25d71e4bb",
+          "0x09ef197f8757969dce6a9379281f5c5b1ab7aeba924631d6ac5e560e817733c0",
+          "0x323688e7370b5f72bdadc1cdd2f2f4d9cd7065647a6f54a961def1222684e6d6",
+          "0xb7edabb0a1e1cb42fe1138558ca73510c890ba5dfc013aca0e2bf9a7c26af0a7",
+          "0x0400000000000000000000000000000000000000000000000000000000000000",
+          "0x8e38229b2010e3cde27597c6e4852c4e6cdca82e03574383993cd60250e9ed3a",
+          "0xe05db90000000000000000000000000000000000000000000000000000000000",
           "0x96a9cb37455ee3201aed37c6bd0598f07984571e5f0593c99941cb50af942cb1"
         ]
-      ],
-      "state_root": "0x2d178ffec45f6576ab4b61446f206c206c837fa3f324ac4d93a3eece8aad6d66"
-    }
-  ]
+      }
+    ],
+    "root": "0x2d178ffec45f6576ab4b61446f206c206c837fa3f324ac4d93a3eece8aad6d66"
+  }
 }
 ```
