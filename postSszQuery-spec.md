@@ -86,18 +86,16 @@ See [Example sections](#Example) for example responses.
 
 The content for success query follows typical Beacon API format: it includes `version`, `execution_optimistic`, `finalized`, and `data`. 
 
-For non-multiproof mode and multiproof mode, `data` contains an array with [`QueryResult`](#QueryResult) and the state root (`root`). In case multiproof is disabled, this `data` array one element per query element. In case multiproof is enabled, the `data` array contains only one element.
+For non-multiproof mode and multiproof mode, `data` contains an array with [`QueryResult`](#QueryResult) and the state root (`root`). In case multiproof is disabled, this `data` array contains one element per query element. In case multiproof is enabled, the `data` array contains only one element.
 
 ##### `QueryResult`
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `proof_type` | String | The type of proof. In this case, `merkle_multiproof`, indicating a single proof for multiple values. |
 | `paths` | Array\<String\> | An array of Merkle paths for the queried items. Each path corresponds to the value at the respective index in the `leaves` array. |
 | `leaves` | Array\<String\> | An array of the actual values (leaves) corresponding to the queried paths. Each value is typically represented as a 32-byte hash. |
 | `gindices` | Array\<Number\> | An array of generalized indices for each value in the `leaves` array. |
 | `proof` | Array\<String\> | An array of proof that are sorted **descending order** by the generalized index. Empty array if `include_proof` is `false`. |
-| `state_root` | String | The root of target (anchor) `BeaconState`. |
 
 
 ## Example
@@ -126,33 +124,61 @@ Response:
 ```json
 {
   "version": "electra",
-  "execution_optimistic": false,
+  "execution_optimistic": true,
   "finalized": true,
   "data": {
-    "result": [
-      {
-        "paths": [".validators[100].withdrawal_credentials"],
-        "leaves": [
-          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-        ],
-        "gindexes": ["1319413953332001"],
-        "proof": [
-          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-        ]
-      },
-      {
-        "paths": [".len(validators)"],
-        "leaves": ["1000"],
-        "gindexes": ["76"],
-        "proof": [
-          "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-        ]
-      }
-    ],
-    "root": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
+    "root": "0xf1f2f3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1",
+    "values": {
+      "paths": [".genesis_validators_root", ".validators[100]"],
+      "results": [
+        "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
+        {
+          "pubkey": "0x8f2a41e5b6c71234abcd5678ef90ff11223344556677889900aabbccddeeff0",
+          "withdrawal_credentials": "0x00aa2753bbcc...99",
+          "effective_balance": "32000000000",
+          "slashed": false,
+          "activation_eligibility_epoch": "64",
+          "activation_epoch": "64",
+          "exit_epoch": "18446744073709551615",
+          "withdrawable_epoch": "18446744073709551615"
+        }
+      ]
+    },
+    "proofs": {
+      "proofs_type": "merkle_proof",
+      "results": [
+        {
+          "paths": [".genesis_validators_root"],
+          "leaves": [
+            "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95"
+          ],
+          "gindices": ["65"],
+          "proofs": [
+            "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          ]
+        },
+        {
+          "paths": [".validators[100]"],
+          "leaves": [
+            "0x12345678deadbeefcafebabef00dabad12345678deadbeefcafebabef00dabad"
+          ],
+          "gindices": ["8796093023233"],
+          "proofs": [
+            "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          ]
+        }
+      ]
+    }
   }
 }
-
 ```
 
 ### 2. With Multiproof
@@ -182,29 +208,45 @@ Response:
   "execution_optimistic": true,
   "finalized": true,
   "data": {
-    "result": [
+    "root": "0xf1f2f3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1",
+    "values": {
+      "paths": [".genesis_validators_root", ".validators[100]"],
+      "results": [
+        "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
+        {
+          "pubkey": "0x8f2a41e5b6c71234abcd5678ef90ff11223344556677889900aabbccddeeff0",
+          "withdrawal_credentials": "0x00aa2753bbcc...99",
+          "effective_balance": "32000000000",
+          "slashed": false,
+          "activation_eligibility_epoch": "64",
+          "activation_epoch": "64",
+          "exit_epoch": "18446744073709551615",
+          "withdrawable_epoch": "18446744073709551615"
+        }
+      ]
+    },
+    "proofs": [
       {
-        "paths": [".genesis_validators_root", ".fork.current_version"],
-        "leaves": [
-          "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
-          "0x0500000000000000000000000000000000000000000000000000000000000000"
-        ],
-        "gindices": [65, 269],
-        "proofs": [
-          "0x5730c65f00000000000000000000000000000000000000000000000000000000",
-          "0xbe3dc5b7843f6b253970803030a18501814c97ac893ec03560ce4962688f857c",
-          "0x8d637afd2d258e4d079ca7f00dd4c857a61431af7262ede447b712a25d71e4bb",
-          "0x09ef197f8757969dce6a9379281f5c5b1ab7aeba924631d6ac5e560e817733c0",
-          "0x323688e7370b5f72bdadc1cdd2f2f4d9cd7065647a6f54a961def1222684e6d6",
-          "0xb7edabb0a1e1cb42fe1138558ca73510c890ba5dfc013aca0e2bf9a7c26af0a7",
-          "0x0400000000000000000000000000000000000000000000000000000000000000",
-          "0x8e38229b2010e3cde27597c6e4852c4e6cdca82e03574383993cd60250e9ed3a",
-          "0xe05db90000000000000000000000000000000000000000000000000000000000",
-          "0x96a9cb37455ee3201aed37c6bd0598f07984571e5f0593c99941cb50af942cb1"
+        "proofs_type": "merkle_multiproof",
+        "results": [
+          {
+            "paths": [".genesis_validators_root", ".validators[100]"],
+            "leaves": [
+              "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
+              "0x12345678deadbeefcafebabef00dabad12345678deadbeefcafebabef00dabad"
+            ],
+            "gindices": ["65", "8796093023233"],
+            "proofs": [
+              "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+              "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+            ]
+          }
         ]
       }
-    ],
-    "root": "0x2d178ffec45f6576ab4b61446f206c206c837fa3f324ac4d93a3eece8aad6d66"
+    ]
   }
 }
 ```
