@@ -96,7 +96,6 @@ The content for success query follows typical Beacon API format: it includes `ve
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `paths` | Array\<String\> | An array of Merkle paths for the queried items. Each path corresponds to the value at the respective index in the `leaves` array. |
 | `leaves` | Array\<String\> | An array of the actual values (leaves) corresponding to the queried paths. Each value is typically represented as a **32-byte hash**. |
 | `gindices` | Array\<Number\> | An array of generalized indices for each value in the `leaves` array. |
 | `proofs` | Array\<String\> | An array of proof that are sorted **descending order** by the generalized index. |
@@ -246,9 +245,6 @@ Response:
         },
         "proofs": [
             {
-                "paths": [
-                    ".genesis_validators_root"
-                ],
                 "leaves": [
                     "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95"
                 ],
@@ -264,9 +260,6 @@ Response:
                 ]
             },
             {
-                "paths": [
-                    ".validators[100]"
-                ],
                 "leaves": [
                     "0x12345678deadbeefcafebabef00dabad12345678deadbeefcafebabef00dabad"
                 ],
@@ -286,7 +279,7 @@ Response:
 }
 ```
 
-### 2. With proof (`multiproof` mode)
+### 3. With proof (`multiproof` mode)
 
 Request:
 
@@ -343,10 +336,6 @@ Response:
         },
         "proofs": [
             {
-                "paths": [
-                    ".genesis_validators_root",
-                    ".validators[100]"
-                ],
                 "leaves": [
                     "0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95",
                     "0x12345678deadbeefcafebabef00dabad12345678deadbeefcafebabef00dabad"
